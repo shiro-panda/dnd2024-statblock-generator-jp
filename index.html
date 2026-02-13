@@ -1,1 +1,1229 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="UTF-8">
+        <title>D&amp;D2024データ・ブロック作成ツール（仮）</title>
+        <link rel="shortcut icon" type="image/trash-icon" href="./files/img/favicon.ico.png">
+        <link rel="stylesheet" type="text/css" href="./files/css/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="./files/css/editor-style.css">
+        <link rel="stylesheet" type="text/css" href="./files/css/statblock-page-style.css">
+        <link rel="stylesheet" type="text/css" href="./files/css/statblock-style.css">
+        <link rel="stylesheet" type="text/css" href="./files/css/libre-baskerville.css">
+        <link rel="stylesheet" type="text/css" href="./files/css/noto-sans.css">
+        <script src="./files/js/jquery-3.4.1.min.js"></script>
+        <script src="./files/js/statblock-script.js"></script>
+        <script src="./files/js/bootstrap.min.js"></script>
+        <script src="./files/js/FileSaver.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    </head>
+    
+    <body id="stat-block-body" style="min-width: 1000px; overflow-y: visible; padding-bottom: 100px">
+        <div class="container" style="text-align: center;">
+            <h1>D&amp;D2024 データ・ブロック生成ツール（仮）</h1>
+            <br>
+            <button onclick="SaveFile()">データを保存</button>
+            <button onclick="LoadFile()">データを読込</button>
+            <br>
+            <button onclick="SaveImage()">画像を保存</button>
+            <button onclick="Markdown()">マークダウンを表示</button>
+            <input id="file-upload" type="file" onchange="TryLoadFile();" hidden>
+            <br>
+            <div id="monster-select-form">
+                <select id="monster-select">
+                    <option value="">-- モンスター選択 --</option>
+                    <option value="default">デフォルト</option>
+                </select>
+                <button type="button" id="monster-select-button" onclick="InputFunctions.GetPreset()">プリセットを使用</button>
+            </div>
+            <br>
 
+            <!-- データ・ブロックの表示 -->
+            <div id="stat-block-wrapper"> <!-- データ・ブロック -->
+                <div id="stat-block" class="stat-block">
+                    <div class="section-top">
+                        <h1 id="monster-name">モンスター</h1>
+                        <hr class="name">
+                    </div>
+                    <div class="section-left"> <!-- 左側 -->
+                        <div class="creature-heading"> <!-- クリーチャー概要 -->
+                            <h2 id="monster-type">中型・人型生物、任意の属性</h2>
+                        </div>
+                        <div class="top-stats"> <!-- 上位データ -->
+                            <div class="property-line first">
+                                <h4>AC：</h4>
+                                <p id="armor-class">10</p>
+                            </div>
+                            <div class="property-line first">
+                                <h4>イニシアチブ：</h4>
+                                <p id="initiative">＋0</p>
+                            </div>
+                            <div class="property-line">
+                                <h4>HP：</h4>
+                                <p id="hit-points">22（5d8）</p>
+                            </div>
+                            <div class="property-line last">
+                                <h4>移動速度：</h4>
+                                <p id="speed">9m（30㌳）</p>
+                            </div>
+                            <table id="score-sdc" class="score"> <!-- 能力値 -->
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <td></td>
+                                        <td>修正</td>
+                                        <td>セーヴ</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th class="sdc1">【筋】</th>
+                                        <td class="sdc1"><p id="str-score">10</p></td>
+                                        <td class="sdc2"><p id="str-mod">＋0</p></td>
+                                        <td class="sdc2"><p id="str-save">＋0</p></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="sdc1">【敏】</th>
+                                        <td class="sdc1"><p id="dex-score">10</p></td>
+                                        <td class="sdc2"><p id="dex-mod">＋0</td>
+                                        <td class="sdc2"><p id="dex-save">＋0</td>
+                                    </tr>
+                                    <tr>
+                                        <th class="sdc1">【耐】</th>
+                                        <td class="sdc1"><p id="con-score">10</p></td>
+                                        <td class="sdc2"><p id="con-mod">＋0</td>
+                                        <td class="sdc2"><p id="con-save">＋0</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table id="score-iwc" class="score">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <td></td>
+                                        <td>修正</td>
+                                        <td>セーヴ</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <th class="iwc1">【知】</th>
+                                        <td class="iwc1"><p id="int-score">10</p></td>
+                                        <td class="iwc2"><p id="int-mod">＋0</p></td>
+                                        <td class="iwc2"><p id="int-save">＋0</p></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="iwc1">【判】</th>
+                                        <td class="iwc1"><p id="wis-score">10</p></td>
+                                        <td class="iwc2"><p id="wis-mod">＋0</p></td>
+                                        <td class="iwc2"><p id="wis-save">＋0</p></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="iwc1">【魅】</th>
+                                        <td class="iwc1"><p id="cha-score">10</p></td>
+                                        <td class="iwc2"><p id="cha-mod">＋0</p></td>
+                                        <td class="iwc2"><p id="cha-save">＋0</p></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div id="properties-list">
+                                <div class="property-line first"><div>
+                                    <h4>感覚：</h4>
+                                    <p>受動〈知覚〉10</p>
+                                </div></div>
+                                <div class="property-line"><div>
+                                    <h4>言語：</h4>
+                                    <p>なし</p>
+                                </div></div>
+                            </div>
+                            <div id="challenge-rating-line" class="property-line last">
+                                <h4>脅威度：</h4>
+                                <p id="challenge-rating">1（200XP；習熟ボーナス＋2）</p>
+                            </div>
+                        </div>
+                        <div class="actions"> <!-- アクション -->
+                            <div id="traits-list-left"></div>
+                        </div>
+                    </div>
+                    <div class="section-right"> <!-- 右側 -->
+                        <div class="actions"> <!-- アクション -->
+                            <div id="traits-list-right"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="options"> <!-- 表示用オプション -->
+                <form> <!-- 1列 or 2列 -->
+                    <label for="1col-input">
+                        <input id="1col-input" type="radio" name="columns-input" value="1col" checked="">1列
+                    </label>
+                    <label for="2col-input">
+                        <input id="2col-input" type="radio" name="columns-input" value="2col">2列
+                    </label>
+                </form>
+                <div> <!-- 距離単位 -->
+                    <label for="by-meter-input">
+                        <input id="by-meter-input" type="checkbox" checked="">メートル表記
+                    </label>
+                    <label for="by-feet-input">
+                        <input id="by-feet-input" type="checkbox" checked="">フィート表記
+                    </label>
+                </div>
+                <button id="left-separator-button" type="button" onclick="UpdateBlockFromVariables(1)" style="display: none;">&lt;&lt;</button>
+                <button type="button" onclick="UpdateBlockFromVariables(0)">データ・ブロック更新</button>
+                <button id="right-separator-button" type="button" onclick="UpdateBlockFromVariables(-1)" style="display: none;">&gt;&gt;</button>
+            </div>
+            <hr>
+
+            <div class="block"> <!-- 入力フォーム1 -->
+                <div class="form"> <!-- 名前 -->
+                    <label for="name-input"><h3>名前</h3></label>
+                    <input id="name-input" type="text" value="モンスター">
+                </div>
+                <div> <!-- サイズ -->
+                    <label for="size-input"><h3>サイズ</h3></label>
+                    <select id="size-input" data-size="">
+                        <option value="超小型">超小型</option>
+                        <option value="小型">小型</option>
+                        <option value="中型" selected="selected">中型</option>
+                        <option value="大型">大型</option>
+                        <option value="超大型">超大型</option>
+                        <option value="巨大">巨大</option>
+                        <option value="中型または小型">中型または小型</option>
+                    </select>
+                    <label>
+                        <input id="swarm-check" type="checkbox" data-show="">大群
+                    </label>
+                    <select id="swarm-input" style="display: none;">
+                        <option value="超小型" selected="selected">超小型の〜からなる</option>
+                        <option value="小型">小型の〜からなる</option>
+                        <option value="中型">中型の〜からなる</option>
+                        <option value="大型">大型の〜からなる</option>
+                        <option value="超大型">超大型の〜からなる</option>
+                    </select>
+                    <div id="custom-size-prompt" class="custom">
+                        <label>
+                            <input id="custom-size-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <input id="custom-size-input" type="text" class="long" value="中型・[TYPE]" disabled=true>
+                        <div class="tooltip">？
+                            <span class="tooltiptext">※[TYPE]はクリーチャー分類で置換されます。</span>
+                        </div>
+                    </div>
+                </div>
+                <div> <!-- クリーチャー分類 -->
+                    <label for="type-input"><h3>分類</h3></label>
+                    <select id="type-input">
+                        <option value="アンデッド">アンデッド</option>
+                        <option value="異形">異形</option>
+                        <option value="エレメンタル">エレメンタル</option>
+                        <option value="怪物">怪物</option>
+                        <option value="巨人">巨人</option>
+                        <option value="植物">植物</option>
+                        <option value="人造">人造</option>
+                        <option value="セレスチャル">セレスチャル</option>
+                        <option value="ドラゴン">ドラゴン</option>
+                        <option value="フィーンド">フィーンド</option>
+                        <option value="フェイ">フェイ</option>
+                        <option value="人型生物" selected="">人型生物</option>
+                        <option value="粘体">粘体</option>
+                        <option value="野獣">野獣</option>
+                    </select>
+                    <label>タグ
+                        <input id="tag-input" type="text" class="short">
+                    </label>
+                    <div id="custom-type-prompt" class="custom">
+                        <label>
+                            <input id="custom-type-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <input id="custom-type-input" type="text" class="long" value="人型生物" disabled=true>
+                    </div>
+                </div>
+                <div> <!-- 属性 -->
+                    <label for="alignment-input"><h3>属性</h3></label>
+                    <select id="alignment-input">
+                        <option value="任意の属性">任意の属性</option>
+                        <option value="秩序にして善">秩序にして善</option>
+                        <option value="中立にして善">中立にして善</option>
+                        <option value="混沌にして善">混沌にして善</option>
+                        <option value="秩序にして中立">秩序にして中立</option>
+                        <option value="真なる中立">真なる中立</option>
+                        <option value="混沌にして中立">混沌にして中立</option>
+                        <option value="秩序にして悪">秩序にして悪</option>
+                        <option value="中立にして悪">中立にして悪</option>
+                        <option value="混沌にして悪">混沌にして悪</option>
+                        <option value="無属性">無属性</option>
+                    </select>
+                    <div id="custom-alignment-prompt" class="custom">
+                        <label>
+                            <input id="custom-alignment-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <input id="custom-alignment-input" type="text" class="long" value="任意の属性" disabled=true>
+                    </div>
+                </div>
+                <div id="cr-form"> <!-- 脅威度 -->
+                    <label for="cr-input"><h3>脅威度</h3></label>
+                        <select id="cr-input" data-cr="">
+                            <option value="0">0（10XP；習熟ボーナス＋2）</option>
+                            <option value="1/8">1/8（25XP；習熟ボーナス＋2）</option>
+                            <option value="1/4">1/4（50XP；習熟ボーナス＋2）</option>
+                            <option value="1/2">1/2（100XP；習熟ボーナス＋2）</option>
+                            <option value="1" selected="selected">1（200XP；習熟ボーナス＋2）</option>
+                            <option value="2">2（450XP；習熟ボーナス＋2）</option>
+                            <option value="3">3（700XP；習熟ボーナス＋2）</option>
+                            <option value="4">4（1,100XP；習熟ボーナス＋2）</option>
+                            <option value="5">5（1,800XP；習熟ボーナス＋2）</option>
+                            <option value="6">6（2,300XP；習熟ボーナス＋2）</option>
+                            <option value="7">7（2,900XP；習熟ボーナス＋2）</option>
+                            <option value="8">8（3,900XP；習熟ボーナス＋2）</option>
+                            <option value="9">9（5,000XP；習熟ボーナス＋2）</option>
+                            <option value="10">10（5,900XP；習熟ボーナス＋2）</option>
+                            <option value="11">11（7,200XP；習熟ボーナス＋2）</option>
+                            <option value="12">12（8,400XP；習熟ボーナス＋2）</option>
+                            <option value="13">13（10,000XP；習熟ボーナス＋2）</option>
+                            <option value="14">14（11,500XP；習熟ボーナス＋2）</option>
+                            <option value="15">15（13,000XP；習熟ボーナス＋2）</option>
+                            <option value="16">16（15,000XP；習熟ボーナス＋2）</option>
+                            <option value="17">17（18,000XP；習熟ボーナス＋2）</option>
+                            <option value="18">18（20,000XP；習熟ボーナス＋2）</option>
+                            <option value="19">19（22,000XP；習熟ボーナス＋2）</option>
+                            <option value="20">20（25,000XP；習熟ボーナス＋2）</option>
+                            <option value="21">21（33,000XP；習熟ボーナス＋2）</option>
+                            <option value="22">22（41,000XP；習熟ボーナス＋2）</option>
+                            <option value="23">23（50,000XP；習熟ボーナス＋2）</option>
+                            <option value="24">24（62,000XP；習熟ボーナス＋2）</option>
+                            <option value="25">25（75,000XP；習熟ボーナス＋2）</option>
+                            <option value="26">26（90,000XP；習熟ボーナス＋2）</option>
+                            <option value="27">27（105,000XP；習熟ボーナス＋2）</option>
+                            <option value="28">28（120,000XP；習熟ボーナス＋2）</option>
+                            <option value="29">29（135,000XP；習熟ボーナス＋2）</option>
+                            <option value="30">30（155,000XP；習熟ボーナス＋2）</option>
+                        </select>
+                    </label>
+                    <div id="custom-cr-prompt" class="custom">
+                        <label>
+                            <input id="custom-cr-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <span>
+                            <input id="custom-cr-input" type="text" class="long" value="1（200XP；習熟ボーナス[PROF]）" disabled=true>
+                            <div class="tooltip">？
+                                <span class="tooltiptext">※[PROF]は習熟ボーナスで置換されます。</span>
+                            </div>
+                            <br> <!--custom-crとインデント並べたい-->
+                            習熟ボーナス<input id="custom-prof-input" type="number" min="-99" max="99" value="2" disabled=true>
+                        </span>
+                        
+                    </div>
+                </div>
+                <div> <!-- 能力値 -->
+                    <label for="ability-form"><h3>能力値</h3></label>
+                    <div id="ability-form" class="grid-form ability-grid">
+                        <div id="ability-label" class="ability-grid grid-label"></div>
+                        <label id="str-label" class="ability-grid grid-label">【筋力】</label>
+                        <label id="dex-label" class="ability-grid grid-label">【敏捷力】</label>
+                        <label id="con-label" class="ability-grid grid-label">【耐久力】</label>
+                        <label id="int-label" class="ability-grid grid-label">【知力】</label>
+                        <label id="wis-label" class="ability-grid grid-label">【判断力】</label>
+                        <label id="cha-label" class="ability-grid grid-label">【魅力】</label>
+                        
+                        <div id="score-header" class="grid-header">値</div>
+                        <div>
+                            <input id="str-input" class="ability-score" aria-labelledby="str-label score-header" type="number" min="1" max="99" value="10" data-ability>
+                        </div>
+                        <div>
+                            <input id="dex-input" class="ability-score" aria-labelledby="dex-label score-header" type="number" min="1" max="99" value="10" data-ability>
+                        </div>
+                        <div>
+                            <input id="con-input" class="ability-score" aria-labelledby="con-label score-header" type="number" min="1" max="99" value="10" data-ability>
+                        </div>
+                        <div>
+                            <input id="int-input" class="ability-score" aria-labelledby="int-label score-header" type="number" min="1" max="99" value="10" data-ability>
+                        </div>
+                        <div>
+                            <input id="wis-input" class="ability-score" aria-labelledby="wis-label score-header" type="number" min="1" max="99" value="10" data-ability>
+                        </div>
+                        <div>
+                            <input id="cha-input" class="ability-score" aria-labelledby="cha-label score-header" type="number" min="1" max="99" value="10" data-ability="">
+                        </div>
+                        
+                        <div id="mod-header" class="grid-header">修正</div>
+                        <div id="str-mod" class="ability-mod" aria-labelledby="str-label mod-header">＋0</div>
+                        <div id="dex-mod" class="ability-mod" aria-labelledby="dex-label mod-header">＋0</div>
+                        <div id="con-mod" class="ability-mod" aria-labelledby="con-label mod-header">＋0</div>
+                        <div id="int-mod" class="ability-mod" aria-labelledby="int-label mod-header">＋0</div>
+                        <div id="wis-mod" class="ability-mod" aria-labelledby="wis-label mod-header">＋0</div>
+                        <div id="cha-mod" class="ability-mod" aria-labelledby="cha-label mod-header">＋0</div>
+                        
+                        <div id="save-header" class="grid-header">セーヴ</div>
+                        <div>
+                            <input id="str-save-input" class="save-prof" aria-labelledby="str-label save-header" type="checkbox" value="1" data-save="">
+                            <span id="str-save" class="save-value">＋0</span>
+                        </div>
+                        <div>
+                            <input id="dex-save-input" class="save-prof" aria-labelledby="dex-label save-header" type="checkbox" value="1" data-save="">
+                            <span id="dex-save" class="save-value">＋0</span>
+                        </div>
+                        <div>
+                            <input id="con-save-input" class="save-prof" aria-labelledby="con-label save-header" type="checkbox" value="1" data-save="">
+                            <span id="con-save" class="save-value">＋0</span>
+                        </div>
+                        <div>
+                            <input id="int-save-input" class="save-prof" aria-labelledby="int-label save-header" type="checkbox" value="1" data-save="">
+                            <span id="int-save" class="save-value">＋0</span>
+                        </div>
+                        <div>
+                            <input id="wis-save-input" class="save-prof" aria-labelledby="wis-label save-header" type="checkbox" value="1" data-save="">
+                            <span id="wis-save" class="save-value">＋0</span>
+                        </div>
+                        <div>
+                            <input id="cha-save-input" class="save-prof" aria-labelledby="cha-label save-header" type="checkbox" value="1" data-save="">
+                            <span id="cha-save" class="save-value">＋0</span>
+                        </div>
+                    </div>
+                </div>
+                <div> <!-- AC -->
+                    <label for="ac-preview"><h3>AC</h3></label>
+                    <span id="ac-preview" class="display">10</span>
+                    <input id="ac-preview" type="text" class="short" value="10" disabled=true>
+                    <div>
+                        <label>防具
+                            <select id="armor-input" data-armor>
+                                <option value="なし" selected>なし</option>
+                                <option value="外皮">外皮</option>
+                                <option value="メイジ・アーマー">メイジ・アーマー</option>
+                                <option value="パデッド">パデッド</option>
+                                <option value="レザー">レザー</option>
+                                <option value="スタデッド・レザー">スタデッド・レザー</option>
+                                <option value="ハイド">ハイド</option>
+                                <option value="チェイン・シャツ">チェイン・シャツ</option>
+                                <option value="スケイル・メイル">スケイル・メイル</option>
+                                <option value="ブレストプレート">ブレストプレート</option>
+                                <option value="ハーフ・プレート">ハーフ・プレート</option>
+                                <option value="リング・メイル">リング・メイル</option>
+                                <option value="チェイン・メイル">チェイン・メイル</option>
+                                <option value="スプリント">スプリント</option>
+                                <option value="プレート">プレート</option>
+                            </select>
+                        </label>
+                        <span id="nat-armor-prompt" style="display: none;">
+                            <label for="nat-armor-input">外皮ボーナス</label>
+                            <input id="nat-armor-input" type="number" min="1" max="99" value="3" data-armor="">
+                        </span>
+                        <span id="shield-box-note">
+                            <label>
+                                <input id="shield-input" type="checkbox" data-armor="">
+                                シールド（＋2）
+                            </label>
+                        </span>
+                    </div>
+                    <div id="custom-ac-prompt">
+                        <label>
+                            <input id="custom-ac-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <input id="custom-ac-input" type="text" class="long" value="10" disabled=true>
+                    </div>
+                </div>
+                <div> <!-- イニシアチブ -->
+                    <label for="init-preview"><h3>イニシアチブ</h3></label>
+                    <input id="init-preview" type="text" class ="short" value="＋0" disabled=true>
+                    <div id="init-prof-prompt">
+                        <span>習熟</span>
+                        <label>
+                            <input id="init-prof-0-input" type="radio" name="init" value="0" checked="" data-init="">
+                            なし
+                        </label>
+                        <label>
+                            <input id="init-prof-1-input" type="radio" name="init" value="1" data-init="">×1
+                        </label>
+                        <label>
+                            <input id="init-prof-2-input" type="radio" name="init" value="2" data-init="">×2
+                        </label>
+                    </div>
+                    <div id="custom-init-prompt">
+                        <label>
+                            <input id="custom-init-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <input id="custom-init-input" type="text" class="long" value="＋0（10）" disabled=true>
+                    </div>
+                </div>
+                <div> <!-- HP -->
+                    <label for="hp-preview"><h3>HP</h3></label>
+                    <input id="hp-preview" type="text" value="20（5d8）" disabled=true>
+                    <div id="hitdice-input-prompt">
+                        <label>ヒット・ダイス
+                            <input type="number" id="hitdice-input" min="1" max="99" value="5" data-hitdice="">
+                            <span id="hitdice-size">d8</span>
+                        </label>
+                    </div>
+                    <div id="custom-hp-prompt">
+                        <label>
+                            <input id="custom-hp-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <input id="custom-hp-input" type="text" class="long" value="4（1d8）" disabled=true>
+                    </div>
+                </div>
+                <div> <!-- 移動速度 -->
+                    <h3>移動速度</h3>
+                    <div class="grid-form speed-grid">
+                        <label id="walk-label" class="speed-grid grid-label">移動速度</label>
+                        <label id="burrow-input" class="speed-grid grid-label">穴掘</label>
+                        <label id="swim-label" class="speed-grid grid-label">水泳</label>
+                        <label id="climb-label" class="speed-grid grid-label">登攀</label>
+                        <label id="fly-label" class="speed-grid grid-label">飛行</label>
+                        
+                        <div>
+                            <input id="walk-ft-input" aria-labelledby="walk-label" type="number" min="0" max="1000" step="5" value="30" data-distance>
+                            <span class="unit">㌳</span>
+                        </div>
+                        <div>
+                            <input id="burrow-ft-input" aria-labelledby="burrow-label" type="number" min="0" max="1000" step="5" value="0" data-distance>
+                            <span class="unit">㌳</span>
+                        </div>
+                        <div>
+                            <input id="swim-ft-input" aria-labelledby="swim-label" type="number" min="0" max="1000" step="5" value="0" data-distance>
+                            <span class="unit">㌳</span>
+                        </div>
+                        <div>
+                            <input id="climb-ft-input" aria-labelledby="climb-label" type="number" min="0" max="1000" step="5" value="0" data-distance>
+                            <span class="unit">㌳</span>
+                        </div>
+                        <div>
+                            <input id="fly-ft-input" aria-labelledby="fly-label" type="number" min="0" max="1000" step="5" value="0" data-distance>
+                            <span class="unit">㌳</span>
+                        </div>
+                        
+                        <div>
+                            <input id="walk-m-input" aria-labelledby="walk-label" type="number" min="0" max="300" step="1.5" value="9" data-distance>
+                            <span class="unit">m</span>
+                        </div>
+                        <div>
+                            <input id="burrow-m-input" aria-labelledby="burrow-label" type="number" min="0" max="300" step="1.5" value="0" data-distance>
+                            <span class="unit">m</span>
+                        </div>
+                        <div>
+                            <input id="swim-m-input" aria-labelledby="swim-label" type="number" min="0" max="300" step="1.5" value="0" data-distance>
+                            <span class="unit">m</span>
+                        </div>
+                        <div>
+                            <input id="climb-m-input" aria-labelledby="climb-label" type="number" min="0" max="300" step="1.5" value="0" data-distance>
+                                <span class="unit">m</span>
+                        </div>
+                        <div>
+                            <input id="fly-m-input" aria-labelledby="fly-label" type="number" min="0" max="300" step="1.5" value="0" data-distance>
+                            <span class="unit">m</span>
+                        </div>
+
+                        <div id="hover-box-note">
+                            <label class="box-note">
+                                <input id="hover-input" type="checkbox">
+                                ホバリング
+                            </label>
+                        </div>
+                    </div>
+                    <div id="custom-speed-prompt">
+                        <label>
+                            <input id="custom-speed-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <input id="custom-speed-input" type="text" class="long" value="9m（30㌳）" disabled=true>
+                    </div>
+                </div>
+                <div id="skills-form"> <!-- 技能 -->
+                    <h3>技能</h3>
+                    <div id="skills1-grid" class="grid-form skills-grid">
+                        <div id="header-skills1" class="grid-header"></div>
+                        <div id="header-skills1-0" class="grid-header">なし</div>
+                        <div id="header-skills1-1" class="grid-header">習熟</div>
+                        <div id="header-skills1-2" class="grid-header">習熟強化</div>
+                        <div id="header-skills1-mod" class="grid-header">修正</div>
+
+                        <div id="label-intimidation" class="skills-grid grid-label">〈威圧〉</div>
+                        <div><input type="radio" name="威圧" value="0" checked data-skill></div>
+                        <div><input type="radio" name="威圧" value="1" data-skill></div>
+                        <div><input type="radio" name="威圧" value="2" data-skill></div>
+                        <div id="威圧-bonus"></div>
+
+                        <div id="label-medicine" class="skills-grid grid-label">〈医術〉</div>
+                        <div><input type="radio" name="医術" value="0" checked data-skill></div>
+                        <div><input type="radio" name="医術" value="1" data-skill></div>
+                        <div><input type="radio" name="医術" value="2" data-skill></div>
+                        <div id="医術-bonus"></div>
+
+                        <div id="label-athletics" class="skills-grid grid-label">〈運動〉</div>
+                        <div><input type="radio" name="運動" value="0" checked data-skill></div>
+                        <div><input type="radio" name="運動" value="1" data-skill></div>
+                        <div><input type="radio" name="運動" value="2" data-skill></div>
+                        <div id="運動-bonus"></div>
+
+                        <div id="label-stealth" class="skills-grid grid-label">〈隠密〉</div>
+                        <div><input type="radio" name="隠密" value="0" checked data-skill></div>
+                        <div><input type="radio" name="隠密" value="1" data-skill></div>
+                        <div><input type="radio" name="隠密" value="2" data-skill></div>
+                        <div id="隠密-bonus"></div>
+
+                        <div id="label-acrobatics" class="skills-grid grid-label">〈軽業〉</div>
+                        <div><input type="radio" name="軽業" value="0" checked data-skill></div>
+                        <div><input type="radio" name="軽業" value="1" data-skill></div>
+                        <div><input type="radio" name="軽業" value="2" data-skill></div>
+                        <div id="軽業-bonus"></div>
+
+                        <div id="label-insight" class="skills-grid grid-label">〈看破〉</div>
+                        <div><input type="radio" name="看破" value="0" checked data-skill></div>
+                        <div><input type="radio" name="看破" value="1" data-skill></div>
+                        <div><input type="radio" name="看破" value="2" data-skill></div>
+                        <div id="看破-bonus"></div>
+
+                        <div id="label-performance" class="skills-grid grid-label">〈芸能〉</div>
+                        <div><input type="radio" name="芸能" value="0" checked data-skill></div>
+                        <div><input type="radio" name="芸能" value="1" data-skill></div>
+                        <div><input type="radio" name="芸能" value="2" data-skill></div>
+                        <div id="芸能-bonus"></div>
+
+                        <div id="label-nature" class="skills-grid grid-label">〈自然〉</div>
+                        <div><input type="radio" name="自然" value="0" checked data-skill></div>
+                        <div><input type="radio" name="自然" value="1" data-skill></div>
+                        <div><input type="radio" name="自然" value="2" data-skill></div>
+                        <div id="自然-bonus"></div>
+
+                        <div id="label-religion" class="skills-grid grid-label">〈宗教〉</div>
+                        <div><input type="radio" name="宗教" value="0" checked data-skill></div>
+                        <div><input type="radio" name="宗教" value="1" data-skill></div>
+                        <div><input type="radio" name="宗教" value="2" data-skill></div>
+                        <div id="宗教-bonus"></div>
+
+                        <div id="label-survival" class="skills-grid grid-label">〈生存〉</div>
+                        <div><input type="radio" name="生存" value="0" checked data-skill></div>
+                        <div><input type="radio" name="生存" value="1" data-skill></div>
+                        <div><input type="radio" name="生存" value="2" data-skill></div>
+                        <div id="生存-bonus"></div>
+                    </div>
+                    <div id="skills-2-grid" class="grid-form skills-grid">
+                        <div id="header-skills2" class="grid-header"></div>
+                        <div id="header-skills2-0" class="grid-header">なし</div>
+                        <div id="header-skills2-1" class="grid-header">習熟</div>
+                        <div id="header-skills2-2" class="grid-header">習熟強化</div>
+                        <div id="header-skills2-mod" class="grid-header">修正</div>
+                        
+                        <div id="label-persuasion" class="skills-grid grid-label">〈説得〉</div>
+                        <div><input type="radio" name="説得" value="0" checked data-skill></div>
+                        <div><input type="radio" name="説得" value="1" data-skill></div>
+                        <div><input type="radio" name="説得" value="2" data-skill></div>
+                        <div id="説得-bonus"></div>
+
+                        <div id="label-investigation" class="skills-grid grid-label">〈捜査〉</div>
+                        <div><input type="radio" name="捜査" value="0" checked data-skill></div>
+                        <div><input type="radio" name="捜査" value="1" data-skill></div>
+                        <div><input type="radio" name="捜査" value="2" data-skill></div>
+                        <div id="捜査-bonus"></div>
+
+                        <div id="label-perception" class="skills-grid grid-label">〈知覚〉</div>
+                        <div><input type="radio" name="知覚" value="0" checked data-skill></div>
+                        <div><input type="radio" name="知覚" value="1" data-skill></div>
+                        <div><input type="radio" name="知覚" value="2" data-skill></div>
+                        <div id="知覚-bonus"></div>
+
+                        <div id="label-sleit-of-hand" class="skills-grid grid-label">〈手先の早業〉</div>
+                        <div><input type="radio" name="手先の早業" value="0" checked data-skill></div>
+                        <div><input type="radio" name="手先の早業" value="1" data-skill></div>
+                        <div><input type="radio" name="手先の早業" value="2" data-skill></div>
+                        <div id="手先の早業-bonus"></div>
+
+                        <div id="label-animal-handling" class="skills-grid grid-label">〈動物使い〉</div>
+                        <div><input type="radio" name="動物使い" value="0" checked data-skill></div>
+                        <div><input type="radio" name="動物使い" value="1" data-skill></div>
+                        <div><input type="radio" name="動物使い" value="2" data-skill></div>
+                        <div id="動物使い-bonus"></div>
+
+                        <div id="label-deception" class="skills-grid grid-label">〈ペテン〉</div>
+                        <div><input type="radio" name="ペテン" value="0" checked data-skill></div>
+                        <div><input type="radio" name="ペテン" value="1" data-skill></div>
+                        <div><input type="radio" name="ペテン" value="2" data-skill></div>
+                        <div id="ペテン-bonus"></div>
+
+                        <div id="label-arcana" class="skills-grid grid-label">〈魔法学〉</div>
+                        <div><input type="radio" name="魔法学" value="0" checked data-skill></div>
+                        <div><input type="radio" name="魔法学" value="1" data-skill></div>
+                        <div><input type="radio" name="魔法学" value="2" data-skill></div>
+                        <div id="魔法学-bonus"></div>
+
+                        <div id="label-history" class="skills-grid grid-label">〈歴史〉</div>
+                        <div><input type="radio" name="歴史" value="0" checked data-skill></div>
+                        <div><input type="radio" name="歴史" value="1" data-skill></div>
+                        <div><input type="radio" name="歴史" value="2" data-skill></div>
+                        <div id="歴史-bonus"></div>
+                    </div>
+                    <button type="button" onclick="FormFunctions.ResetSkillInput()">リセット</button>
+                    <div id="custom-skills-prompt">
+                        <label>
+                            <input id="custom-skills-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <input id="custom-skills-input" type="text" class="long" value="〈知覚〉＋2" disabled=true>
+                    </div>
+                </div>
+                <div> <!-- ダメージ種別 -->
+                    <h3>ダメージ種別</h3>
+                    <div id="damagetypes-grid" class="grid-form damagetypes-grid">
+                        <div id="header-damagetypes" class="grid-header"></div>
+                        <div id="header-damagetypes-v" class="grid-header">脆弱性</div>
+                        <div id="header-damagetypes-n" class="grid-header">なし</div>
+                        <div id="header-damagetypes-r" class="grid-header">抵抗</div>
+                        <div id="header-damagetypes-i" class="grid-header">完全耐性</div>
+
+                        <div class="damagetypes-grid grid-label">［殴打］</div>
+                        <div><input type="radio" name="殴打" value="v"></div>
+                        <div><input type="radio" name="殴打" value="n" checked></div>
+                        <div><input type="radio" name="殴打" value="r"></div>
+                        <div><input type="radio" name="殴打" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［光輝］</div>
+                        <div><input type="radio" name="光輝" value="v"></div>
+                        <div><input type="radio" name="光輝" value="n" checked></div>
+                        <div><input type="radio" name="光輝" value="r"></div>
+                        <div><input type="radio" name="光輝" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［酸］</div>
+                        <div><input type="radio" name="酸" value="v"></div>
+                        <div><input type="radio" name="酸" value="n"></div>
+                        <div><input type="radio" name="酸" value="r"></div>
+                        <div><input type="radio" name="酸" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［斬撃］</div>
+                        <div><input type="radio" name="斬撃" value="v"></div>
+                        <div><input type="radio" name="斬撃" value="n" checked></div>
+                        <div><input type="radio" name="斬撃" value="r"></div>
+                        <div><input type="radio" name="斬撃" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［刺突］</div>
+                        <div><input type="radio" name="刺突" value="v"></div>
+                        <div><input type="radio" name="刺突" value="n" checked></div>
+                        <div><input type="radio" name="刺突" value="r"></div>
+                        <div><input type="radio" name="刺突" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［死霊］</div>
+                        <div><input type="radio" name="死霊" value="v"></div>
+                        <div><input type="radio" name="死霊" value="n" checked></div>
+                        <div><input type="radio" name="死霊" value="r"></div>
+                        <div><input type="radio" name="死霊" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［精神］</div>
+                        <div><input type="radio" name="精神" value="v"></div>
+                        <div><input type="radio" name="精神" value="n" checked></div>
+                        <div><input type="radio" name="精神" value="r"></div>
+                        <div><input type="radio" name="精神" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［電撃］</div>
+                        <div><input type="radio" name="電撃" value="v"></div>
+                        <div><input type="radio" name="電撃" value="n" checked></div>
+                        <div><input type="radio" name="電撃" value="r"></div>
+                        <div><input type="radio" name="電撃" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［毒］</div>
+                        <div><input type="radio" name="毒" value="v"></div>
+                        <div><input type="radio" name="毒" value="n" checked></div>
+                        <div><input type="radio" name="毒" value="r"></div>
+                        <div><input type="radio" name="毒" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［火］</div>
+                        <div><input type="radio" name="火" value="v"></div>
+                        <div><input type="radio" name="火" value="n" checked></div>
+                        <div><input type="radio" name="火" value="r"></div>
+                        <div><input type="radio" name="火" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［雷鳴］</div>
+                        <div><input type="radio" name="雷鳴" value="v"></div>
+                        <div><input type="radio" name="雷鳴" value="n" checked></div>
+                        <div><input type="radio" name="雷鳴" value="r"></div>
+                        <div><input type="radio" name="雷鳴" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［力場］</div>
+                        <div><input type="radio" name="力場" value="v"></div>
+                        <div><input type="radio" name="力場" value="n" checked></div>
+                        <div><input type="radio" name="力場" value="r"></div>
+                        <div><input type="radio" name="力場" value="i"></div>
+
+                        <div class="damagetypes-grid grid-label">［冷気］</div>
+                        <div><input type="radio" name="冷気" value="v"></div>
+                        <div><input type="radio" name="冷気" value="n" checked></div>
+                        <div><input type="radio" name="冷気" value="r"></div>
+                        <div><input type="radio" name="冷気" value="i"></div>
+                    </div>
+                    <button type="button" onclick="FormFunctions.ResetDamageTypesForm()">リセット</button>
+                    <div id="custom-damagetypes-prompt">
+                        <label>
+                            <input id="custom-damagetypes-check" type="checkbox" data-custom>
+                            手動入力
+                        </label>
+                        <div id="custom-damagetypes-prompt" class="grid-form custom-damagetypes-grid">
+                            <div class="grid-header">脆弱性</div>
+                            <div><input id="custom-vulnerable-input" type="text" class="long" value="" disabled=true></div>
+                            <div class="grid-header">抵抗</div>
+                            <div><input id="custom-resistant-input" type="text" class="long" value="［殴打］" disabled=true></div>
+                            <div class="grid-header">完全耐性</div>
+                            <div><input id="custom-immune-input" type="text" class="long" value="" disabled=true></div>
+                        </div>
+                    </div>
+                </div>
+                <div> <!-- 状態 -->
+                    <h3>状態</h3>
+                    <div id="conditions-grid" class="grid-form conditions-grid">
+                        <div id="header-conditions" class="grid-header"></div>
+                        <div id="header-conditions-i" class="grid-header">完全耐性</div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">気絶</label></div>
+                        <div><input id="気絶-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">恐怖</label></div>
+                        <div><input id="恐怖-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">拘束</label></div>
+                        <div><input id="拘束-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">消耗</label></div>
+                        <div><input id="消耗-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">石化</label></div>
+                        <div><input id="石化-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">聴覚喪失</label></div>
+                        <div><input id="聴覚喪失-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">つかまれた</label></div>
+                        <div><input id="つかまれた-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">毒</label></div>
+                        <div><input id="毒-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">不可視</label></div>
+                        <div><input id="不可視-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">伏せ</label></div>
+                        <div><input id="伏せ-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">麻痺</label></div>
+                        <div><input id="麻痺-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">魅了</label></div>
+                        <div><input id="魅了-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">無力</label></div>
+                        <div><input id="無力-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">盲目</label></div>
+                        <div><input id="盲目-check" type="checkbox"></div>
+
+                        <div class="conditions-grid grid-label"><label for="聴覚喪失-check">朦朧</label></div>
+                        <div><input id="朦朧-check" type="checkbox"></div>
+                    </div>
+                    <button type="button" onclick="FormFunctions.ResetConditionsForm()">リセット</button>
+                    <div>
+                        <span id="custom-conditions-prompt" class="box-note">
+                            <label>
+                                <input id="custom-conditions-check" type="checkbox" data-custom>
+                                手動入力
+                            </label>
+                            <input id="custom-conditions-input" type="text" class="long" value="毒状態" disabled=true>
+                        </span>
+                    </div>
+                </div>
+                <div> <!-- 装備 -->
+                    <h3>装備</h3>
+                    <div>
+                        <label>
+                            <select id="gears-armor-input" data-gears>
+                                <option value="" selected>======防具=====</option>
+                                <option value="">------軽装鎧------</option>
+                                <option value="パデッド">パデッド</option>
+                                <option value="レザー">レザー</option>
+                                <option value="スタデッド・レザー">スタデッド・レザー</option>
+                                <option value="">------中装鎧------</option>
+                                <option value="ハイド">ハイド</option>
+                                <option value="チェイン・シャツ">チェイン・シャツ</option>
+                                <option value="スケイル・メイル">スケイル・メイル</option>
+                                <option value="ブレストプレート">ブレストプレート</option>
+                                <option value="ハーフ・プレート">ハーフ・プレート</option>
+                                <option value="">------重装鎧------</option>
+                                <option value="リング・メイル">リング・メイル</option>
+                                <option value="チェイン・メイル">チェイン・メイル</option>
+                                <option value="スプリント">スプリント</option>
+                                <option value="プレート">プレート</option>
+                                <option value="">-------盾-------</option>
+                                <option value="シールド">シールド</option>
+                            </select>
+                        </label>
+                        <span>
+                            <label>メモ<input id="gear-armor-note-input" type="text" class="short" value=""></label>
+                            <button type="button" onclick="InputFunctions.AddGearInput('armor')">追加</button>
+                        </span>
+                    </div>
+                    <div>
+                        <label>
+                            <select id="gears-simple-input" data-gears>
+                                <option value="" selected>====単純武器====</option>
+                                <option value="" selected>---単純近接武器---</option>
+                                <option value="クオータースタッフ">クオータースタッフ</option>
+                                <option value="クラブ">クラブ</option>
+                                <option value="グレートクラブ">グレートクラブ</option>
+                                <option value="シックル">シックル</option>
+                                <option value="ジャヴェリン">ジャヴェリン</option>
+                                <option value="スピア">スピア</option>
+                                <option value="ダガー">ダガー</option>
+                                <option value="ハンドアックス">ハンドアックス</option>
+                                <option value="メイス">メイス</option>
+                                <option value="ライト・ハンマー">ライト・ハンマー</option>
+                                <option value="">---単純遠隔武器---</option>
+                                <option value="ショートボウ">ショートボウ</option>
+                                <option value="スリング">スリング</option>
+                                <option value="ダーツ">ダーツ</option>
+                                <option value="ライト・クロスボウ">ライト・クロスボウ</option>
+                            </select>
+                        </label>
+                        <span>
+                            <label>メモ<input id="gear-simple-note-input" type="text" class="short" value=""></label>
+                            <button type="button" onclick="InputFunctions.AddGearInput('simple')">追加</button>
+                        </span>
+                    </div>
+                    <div>
+                        <label>
+                            <select id="gears-martial-input" data-gears>
+                                <option value="" selected>====軍用武器====</option>
+                                <option value="">---軍用近接武器---</option>
+                                <option value="ウィップ">ウィップ</option>
+                                <option value="ウォーハンマー">ウォーハンマー</option>
+                                <option value="ウォー・ピック">ウォー・ピック</option>
+                                <option value="グレイヴ">グレイヴ</option>
+                                <option value="グレートアックス">グレートアックス</option>
+                                <option value="グレートソード">グレートソード</option>
+                                <option value="シミター">シミター</option>
+                                <option value="ショートソード">ショートソード</option>
+                                <option value="トライデント">トライデント</option>
+                                <option value="パイク">パイク</option>
+                                <option value="バトルアックス">バトルアックス</option>
+                                <option value="ハルバード">ハルバード</option>
+                                <option value="フレイル">フレイル</option>
+                                <option value="モーニングスター">モーニングスター</option>
+                                <option value="モール">モール</option>
+                                <option value="ランス">ランス</option>
+                                <option value="レイピア">レイピア</option>
+                                <option value="ロングソード">ロングソード</option>
+                                <option value="">---軍用遠隔武器---</option>
+                                <option value="ハンド・クロスボウ">ハンド・クロスボウ</option>
+                                <option value="ピストル">ピストル</option>
+                                <option value="ブロウガン">ブロウガン</option>
+                                <option value="ヘヴィ・クロスボウ">ヘヴィ・クロスボウ</option>
+                                <option value="ロングボウ">ロングボウ</option>
+                            </select>
+                        </label>
+                        <span>
+                            <label>メモ<input id="gear-martial-note-input" type="text" class="short" value=""></label>
+                            <button type="button" onclick="InputFunctions.AddGearInput('martial')">追加</button>
+                        </span>
+                    </div>
+                    <div>
+                    <label>
+                        <select id="gears-other-input" data-gears>
+                            <option value="">=====その他=====</option>
+                            <option value="呪文構成要素ポーチ">呪文構成要素ポーチ</option>
+                            <option value="聖印">聖印</option>
+                            <option value="盗賊道具">盗賊道具</option>
+                            <option value="">-------------------</option>
+                            <option value="*">手動入力</option>
+                        </select>
+                    </label>
+                    <input id="other-gear-input" type="text" value="" style="display: none;">
+                    <span>
+                        <label>メモ<input id="gear-other-note-input" type="text" class="short" value=""></label>
+                        <button type="button" onclick="InputFunctions.AddGearInput('other')">追加</button>
+                    </span>
+                    <div id="gears-input-section" style="display: none;">
+                        <ul id="gears-input-list" class="statblock-list"></ul>
+                    </div>
+                    </div>
+                </div>
+                <div> <!-- 感覚 -->
+                    <h3>感覚</h3>
+                    <div class="grid-form senses-grid">
+                        <label id="label-darkvision" class="senses-grid grid-label">暗視</label>
+                        <label id="label-blindsight" class="senses-grid grid-label">疑似視覚</label>
+                        <label id="label-tremorsense" class="senses-grid grid-label">振動感知</label>
+                        <label id="label-truesight" class="senses-grid grid-label">超視覚</label>
+                        
+                        <div>
+                            <input id="darkvision-ft-input" aria-labelledby="label-darkvision" type="number" min="0" max="1000" step="5" value="30" data-change="distance" data-distance>
+                            <span class="unit">㌳</span>
+                        </div>
+                        <div>
+                            <input id="blindsight-ft-input" aria-labelledby="label-blindsight header-ft" type="number" min="0" max="1000" step="5" value="0" data-distance>
+                            <span class="unit">㌳</span>
+                        </div>
+                        <div>
+                            <input id="tremorsense-ft-input" aria-labelledby="label-tremorsense header-ft" type="number" min="0" max="1000" step="5" value="0" data-distance>
+                            <span class="unit">㌳</span>
+                        </div>
+                        <div>
+                            <input id="truesight-ft-input" aria-labelledby="label-truesight header-ft" type="number" min="0" max="1000" step="5" value="0" data-distance>
+                            <span class="unit">㌳</span>
+                        </div>
+
+                        <div>
+                            <input id="darkvision-m-input" aria-labelledby="label-darkvision" type="number" min="0" max="300" step="1.5" value="9" data-distance>
+                            <span class="unit">m</span>
+                        </div>
+                        <div>
+                            <input id="blindsight-m-input" aria-labelledby="label-blindsight header-m" type="number" min="0" max="300" step="1.5" value="0" data-distance>
+                            <span class="unit">m</span>
+                        </div>
+                        <div>
+                            <input id="tremorsense-m-input" aria-labelledby="label-tremorsense header-m" type="number" min="0" max="300" step="1.5" value="0" data-distance>
+                            <span class="unit">m</span>
+                        </div>
+                        <div>
+                            <input id="truesight-m-input" aria-labelledby="label-truesight header-m" type="number" min="0" max="300" step="1.5" value="0" data-distance>
+                            <span class="unit">m</span>
+                        </div>
+
+                        <div id="magical-box-note">
+                            <label class="box-note">
+                                <input id="magical-input" type="checkbox">
+                                魔法の暗闇
+                            </label>
+                        </div>
+                    </div>
+                    <div>
+                        <span id="custom-senses-prompt" >
+                            <label>
+                                <input id="custom-senses-check" type="checkbox" data-custom>
+                                手動入力
+                            </label>
+                            <input id="custom-senses-input" type="text" class="long" value="暗視60㌳；受動〈知覚〉10" disabled=true>
+                        </span>
+                    </div>    
+                </div>
+                <div id="languages-form"> <!-- 言語 -->
+                    <label for="languages-input"><h3>言語</h3>
+                        <select id="languages-input" data-language>
+                            <option value="あらゆる言語">あらゆる言語</option>
+                            <option value="共通語" selected="">共通語</option>
+                            <option value="エルフ語">エルフ語</option>
+                            <option value="オーク語">オーク語</option>
+                            <option value="巨人語">巨人語</option>
+                            <option value="ゴブリン語">ゴブリン語</option>
+                            <option value="ドワーフ語">ドワーフ語</option>
+                            <option value="ノーム語">ノーム語</option>
+                            <option value="ハーフリング語">ハーフリング語</option>
+                            <option value="始原語">始原語</option>
+                            <option value="始原語（火界語）">始原語（火界語）</option>
+                            <option value="始原語（水界語）">始原語（水界語）</option>
+                            <option value="始原語（風界語）">始原語（風界語）</option>
+                            <option value="始原語（地界語）">始原語（地界語）</option>
+                            <option value="地獄語">地獄語</option>
+                            <option value="深淵語">深淵語</option>
+                            <option value="地下共通語">地下共通語</option>
+                            <option value="天上語">天上語</option>
+                            <option value="奈落語">奈落語</option>
+                            <option value="森語">森語</option>
+                            <option value="竜語">竜語</option>
+                            <option value="*">手動入力</option>
+                        </select>
+                    </label>
+                    <span>
+                        <button type="button" onclick="InputFunctions.AddLanguageInput(true)">話す</button>
+                        <button type="button" onclick="InputFunctions.AddLanguageInput(false)">解する</button> 
+                        <input id="understands-but-input" type="text" value="話せない">
+                    </span>
+                    <div>
+                        <input id="other-language-input" type="text" value="その他の言語？種類" style="display: none;">
+                    </div>
+                    <div id="languages-input-section" style="display: none;">
+                        <ul id="languages-input-list" class="statblock-list"></ul>
+                    </div>
+                    <div>
+                        <label for="telepathy-input" style="margin-left: .5rem;">テレパシー</label>
+                        <input type="number" id="telepathy-ft-input" min="0" max="995" step="5" value="0" data-distance>㌳（
+                        <input type="number" id="telepathy-m-input" min="0" max="999" step="1.5" value="0" data-distance>m）
+                    </div>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="block"> <!-- 入力フォーム2 -->
+                <label for="short-name-input">略称</label>
+                <input id="short-name-input" type="text" value="" placeholder="なし" style="width: 30%;">
+                <div class="tooltip">？
+                    <span class="tooltiptext">能力テキスト内の[MON]を置換する（空欄の場合は置換しない）。</span>
+                </div><br>
+                <label for="plural-name-input">略称（複数）</label>
+                <input id="plural-name-input" type="text" value="" placeholder="なし" style="width: 30%;">
+                <div class="tooltip">？
+                    <span class="tooltiptext">能力テキスト内の[MONS]を置換する（空欄の場合は置換しない）。</span>
+                </div>
+                <br><br>
+                <div>
+                    <label for="is-legendary-input">
+                        <h3><input type="checkbox" id="is-legendary-input" data-legendary>伝説的クリーチャー</h3>
+                    </label>
+                </div>
+                <span id="legendary-actions-form" style="display: none;">
+                    <br>
+                    <label>
+                        <input type="checkbox" id="is-mythic-input" data-legendary>
+                        <b>神話的アクション</b>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="has-lair-input" data-legendary>
+                        <b>住処アクション</b>
+                    </label>
+                    <label>
+                        <input type="checkbox" id="has-regional-input" data-legendary>
+                        <b>環境に及ぼす効果</b>
+                    </label>
+                    <br><br>
+                    <b>伝説的アクションの説明</b>
+                    <div><label style="width: 100%">
+                        <textarea id="legendary-description-input" rows="4">この[MON]は3回の伝説的アクションを行なえる（そのたび以下の選択肢の中から任意のものを使用できる）。伝説的アクションを行なえるのは他のターンの終了時に限られる。また、1度に使用できる伝説的アクションは1つだけである。この[MON]は、自分のターンの開始時ごとに、消費済みの伝説的アクションの使用回数を回復する。</textarea>
+                    </label></div>
+                    <div><button type="button" onclick="InputFunctions.LegendaryDescriptionDefaultInput()">
+                        初期状態に戻す
+                    </button></div>
+                </span>
+                <div id="mythic-actions-form" style="display: none;">
+                    <br>
+                    <b>神話的アクションの説明</b>
+                    <div><label style="width: 100%">
+                        <textarea id="mythic-description-input" rows="4">この[MON]が追い詰められ、“？？？”を起動したなら、以下のオプションも伝説的アクションとして使用できるようになる。</textarea>
+                    </label></div>
+                    <div><button type="button" onclick="InputFunctions.MythicDescriptionDefaultInput()">
+                        初期状態に戻す
+                    </button></div>
+                </div>
+                <div id="lair-actions-form" style="display: none;">
+                    <br>
+                    <label>住処XP
+                        <input id="lair-xp" type="number" style="display: none;">
+                    </label>
+                    <b>住処アクションの説明</b>
+                    <div><label style="width: 100%">
+                        <textarea id="lair-description-input" rows="4">イニシアチブ20の時点で（同値の場合は常に後）、この[MON]は住処アクションを行ない、以下のうち任意の1つの効果を生み出せる。同一の効果を2ラウンド連続で使用することはできない。</textarea>
+                    </label></div>
+                    <b>住処アクションの説明（末尾）</b>
+                    <div><label style="width: 100%">
+                        <textarea id="lair-end-description-input" rows="4"></textarea>
+                    </label></div>
+                    <div><button type="button" onclick="InputFunctions.LairDescriptionDefaultInput()">
+                        初期状態に戻す
+                    </button></div>
+                </div>
+                <div id="regional-actions-form" style="display: none;">
+                    <br>
+                    <b>環境に及ぼす効果の説明</b>
+                    <div><label style="width: 100%">
+                        <textarea id="regional-description-input" rows="4">伝説的な？？？の住処のある場所は、この[MON]の魔力によってひきゆがみ、以下のうち1つ以上の効果を受ける。</textarea>
+                    </label></div>
+                    <b>環境に及ぼす効果の説明（末尾）</b>
+                    <div><label for="regional-end-description-input" style="width: 100%">
+                        <textarea id="regional-end-descsection-input" rows="4">この[MON]が死んだなら、これらの効果は1d10日で消え去る。</textarea>
+                    </label></div>
+                    <div><button type="button" onclick="InputFunctions.RegionalDescriptionDefaultInput()">
+                        初期状態に戻す
+                    </button></div>
+                </div>
+                <br>
+                <h3>特徴・アクション</h3>
+                <div><label style="width: 100%;">名称
+                    <input id="traits-name-input" type="text" value="" style="margin-right: 40px; width: 30%;">
+                </label></div>
+                <div><textarea id="traits-description-input" style="height: 10em;"></textarea></div>
+                <div>
+                    <button type="button" id="add-traits-button" onclick="InputFunctions.AddTraitInput('traits')">特徴</button>
+                    <button type="button" id="add-action-button" onclick="InputFunctions.AddTraitInput('actions')">アクション</button>
+                    <button type="button" id="add-bonus-action-button" onclick="InputFunctions.AddTraitInput('bonusActions')">ボーナス・アクション</button>
+                    <button type="button" id="add-reaction-button" onclick="InputFunctions.AddTraitInput('reactions')">リアクション</button>
+                    <br>
+                    <button type="button" id="add-legendary-button" onclick="InputFunctions.AddTraitInput('legendaries')" style="display: none;">伝説的アクション</button>
+                    <button type="button" id="add-mythic-button" onclick="InputFunctions.AddTraitInput('mythics')" style="display: none;">神話的アクション</button>
+                    <button type="button" id="add-lair-button" onclick="InputFunctions.AddTraitInput('lairs')" style="display: none;">住処アクション</button>
+                    <button type="button" id="add-regional-button" onclick="InputFunctions.AddTraitInput('regionals')" style="display: none;">環境に及ぼす効果</button>
+                </div>
+                <div>
+                    <select id="common-traits-input"><option value="0">プリセットを選択</option>
+                        <option value="1"></option>
+                        <option value="2">近接武器攻撃【筋】</option>
+                        <option value="3">近接武器攻撃【敏】</option>
+                        <option value="4">近接呪文攻撃【知】</option>
+                        <option value="5">近接呪文攻撃【判】</option>
+                        <option value="6">近接呪文攻撃【魅】</option>
+                        <option value="7">遠隔武器攻撃【筋】</option>
+                        <option value="8">遠隔武器攻撃【敏】</option>
+                        <option value="9">遠隔呪文攻撃【知】</option>
+                        <option value="10">遠隔呪文攻撃【判】</option>
+                        <option value="11">遠隔呪文攻撃【魅】</option>
+                        <option value="12">近接または遠隔武器攻撃【筋】</option>
+                        <option value="13">近接または遠隔武器攻撃【敏】</option>
+                        <option value="14"></option>
+                        <option value="15">複数回攻撃（アクション）</option>
+                        <option value="16">伝説的抵抗力</option>
+                        <option value="17">呪文発動能力【知】</option>
+                        <option value="18">呪文発動能力【判】</option>
+                        <option value="19">呪文発動能力【魅】</option>
+                        <option value="20">生得呪文発動能力【知】</option>
+                        <option value="21">生得呪文発動能力【判】</option>
+                        <option value="22">生得呪文発動能力【魅】</option>
+                    </select>
+                    <button type="button" id="add-common-trait-button" onclick="InputFunctions.AddCommonTraitInput()">
+                        プリセットを反映
+                    </button>
+                </div>
+                <div><label>
+                    <input type="checkbox" id="format-helper-checkbox" data-show>記述例を表示
+                </label></div>
+                <div id="format-helper" style="padding: 0px 2rem; display: none;">
+                    <br>
+                    <div>斜体には“_”、太字には“**”を使用する。呪文発動のリストを用いる場合、インデントには“&gt;”を使用する。</div>
+                    <br>
+                    <div><b>[MON]</b>：モンスターの名前を表示する。</div>
+                    <div><b>[CHA]</b>：モンスターの【魅力】修正を表示する。</div>
+                    <div><b>[3D6]</b>：3d6の平均値を自動計算する。</div>
+                    <div><b>[STR ATK]</b>：【筋力】に基づく攻撃の攻撃ロールの修正値を計算する。</div>
+                    <div><b>[DEX 2D8]</b>：【敏捷力】に基づく攻撃のダメージ・ロールを2d8のダメージ・ダイスで計算する。</div>
+                    <div><b>[WIS SAVE]</b>：モンスターの【判断力】に対するセーヴ難易度を計算する。</div>
+                    <div><b>[3D6 + 1], [STR ATK - 2], [WIS SAVE + 3]</b>：記載した値に修正値を加算する。</div>
+                    <br>
+                </div>
+                <div style="text-align: left; min-height: 5rem;">
+                    <div id="traits-input-section" style="display: none;"><b>特徴：</b><br>
+                        <ul id="traits-input-list" class="statblock-list"></ul>
+                    </div>
+                    <div id="actions-input-section" style="display: none;"><b>アクション：</b><br>
+                        <ul id="actions-input-list" class="statblock-list"></ul>
+                    </div>
+                    <div id="bonusActions-input-section" style="display: none;"><b>ボーナス・アクション：</b><br>
+                        <ul id="bonusActions-input-list" class="statblock-list"></ul>
+                    </div>
+                    <div id="reactions-input-section" style="display: none;"><b>リアクション：</b><br>
+                        <ul id="reactions-input-list" class="statblock-list"></ul>
+                    </div>
+                    <div id="legendaries-input-section" style="display: none;"><b>伝説的アクション：</b><br>
+                        <ul id="legendaries-input-list" class="statblock-list"></ul>
+                    </div>
+                    <div id="mythic-input-section" style="display: none;"><b>神話的アクション：</b><br>
+                        <ul id="mythics-input-list" class="statblock-list"></ul>
+                    </div>
+                    <div id="lairs-input-section" style="display: none;"><b>住処アクション：</b><br>
+                        <ul id="lairs-input-list" class="statblock-list"></ul>
+                    </div>
+                    <div id="regionals-input-section" style="display: none;"><b>環境に及ぼす効果：</b><br>
+                        <ul id="regionals-input-list" class="statblock-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
