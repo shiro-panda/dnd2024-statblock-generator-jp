@@ -1,0 +1,345 @@
+/* ツール全体の設定 */
+
+html {
+	height: 100%;
+    box-sizing: border-box;
+}
+
+body {
+    background-attachment: fixed;
+    background-size: cover;
+	background-position: center; 
+    margin: 0;
+    height: 100%;
+}
+
+.container {
+    font-family: "Arial", "メイリオ", sans-serif;
+    text-align: left;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    line-height: 125%;
+    background-color: #d4d7ed;
+    border-style: none;
+	min-height: 100%;
+    font-feature-settings: "palt";
+}
+
+.content {padding: 25px 0 50px;}
+h1, h2, h3, h4, h5, h6 {font-weight: bold;}
+h1 {font-family: Tahoma, Georgia, Arial, sans-serif; font-size: 2rem;}
+h2 {font-family: Tahoma, Georgia, Arial, sans-serif; font-size: 1.5rem;}
+h3 {font-size: 1.2rem; margin-top: 0}
+.block h3 {margin: 10px 5px 5px 0}
+hr {border-style: solid; border-color: black;}
+
+a {color: darkred; text-decoration: none;}
+ul {text-align: left; padding-left: 1.5rem;}
+
+button {
+    appearance: none;
+    color: #000000;
+    font-size: 1rem;
+    font-family: Tahoma, Georgia, Arial, sans-serif;
+    background: #74addf;
+    margin: 5px 0 0;
+    padding: 5px 10px;
+    width: auto;
+    border: 5px;
+    border-color: #000000;
+    border-radius: 5px;
+}
+button:hover {
+    color: #ffffff;
+    background: #1e7cae;
+    text-decoration: none;
+}
+.block button {font-size: .8rem; background: #d98fe8;}
+.block button:hover{background: #8f2aa3;}
+
+div.block {
+    font-family: 'Noto Sans', 'Myriad Pro', Calibri, Helvetica, Arial, sans-serif;
+    text-align: left;
+    font-size: 12px;
+    line-height: 1.3em; /*行間*/
+    letter-spacing: 0.03em; /*文字間隔*/
+    display: inline-block;
+    vertical-align: top;
+    width: 100%;
+    margin: 5px 0 0;
+    padding: 5px;
+    box-sizing: border-box;
+}
+div.inline {display: inline;}
+
+div.form {  /*できん*/
+    border: 50px;
+    border-color: #000000;
+    border-radius: 5px;
+}
+div.custom {
+    margin: .2rem 0 ;
+}
+
+.box-note {
+    font-size: .7rem;
+}
+
+span.display {
+    font-size: 1rem;
+    vertical-align: middle;
+}
+
+label {
+    font-size: .8rem;
+    margin: 0em; /*.5*/
+    margin-bottom: 0;
+}
+
+select {
+    height: 1.5rem;
+    font-family: Tahoma, Georgia, Arial, sans-serif;
+    margin: 0 .3rem 0 0;
+}
+input {font-family: Tahoma, Georgia, Arial, sans-serif;}
+input[type=text] {
+    width: 10rem;
+    height: 1.5rem;
+    margin: 0 .5em 0 .2em;}
+input[type=number] {
+    width: 4rem;
+    padding: 1px;
+    margin: 0 .5em 0 .5em;}
+input[type=radio] {
+    vertical-align: middle;
+    margin: .25rem;}
+input[type=checkbox] {
+    vertical-align: middle;
+    margin: 0rem;}
+input.short {
+    font-size: .8rem;
+    width: 5rem;}
+input.long {width: 20rem;}
+input.inline {display: inline;}
+
+textarea {
+    font-family: monospace;
+    font-size: .8rem;
+    letter-spacing: normal;
+    line-height: normal;
+    width: 80%;
+}
+
+/* Grid設定：移動速度 */
+.grid-form {
+    display: grid;
+    grid-auto-rows: auto;
+    text-align: center;
+    column-gap: 0.8rem;
+    row-gap: 0.25rem;
+    align-items: center;
+    margin-bottom: rem;
+}
+.grid-header {   /* 列ヘッダ */
+    font-weight: bold;
+    text-align: center;
+    padding: 0.25rem 0.5rem;
+    white-space: nowrap;
+}
+.grid-form .grid-label {    /* 行ラベル */
+    font-weight: bold;
+    white-space: nowrap;
+    line-height: 1.2;
+}
+.grid-form .grid-cell {   /* セル（数値＋単位） */
+    display: flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.ability-grid {
+    grid-template-columns: 4rem repeat(4, max-content);
+    grid-template-rows: repeat(7, auto);
+    grid-auto-flow: column;
+}
+.ability-grid .grid-header {grid-row: 1;}
+.speed-grid {
+    grid-template-columns: repeat(5, max-content);
+    grid-template-rows: repeat(3, auto);
+}
+.speed-grid .grid-label {grid-row: 1;}
+#hover-box-note {
+    grid-column: 5;
+    grid-row: 4;
+    margin-top: 0.25rem;
+}
+.skills-grid {
+    grid-template-columns: repeat(4, max-content);
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+}
+.skills-grid .grid-header {grid-column: 1;}
+.damagetypes-grid .grid-header {grid-column: 1;}
+.damagetypes-grid {
+    grid-template-columns: repeat(4, max-content);
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+}
+.damagetypes-grid .grid-header {grid-column: 1;}
+.custom-damagetypes-grid {
+    grid-template-columns: repeat(2, max-content);
+    grid-auto-columns: max-content;
+    align-items: left;
+}
+.conditions-grid {
+    grid-template-columns: repeat(1, max-content);
+    grid-auto-columns: max-content;
+    grid-auto-flow: column;
+}
+.conditions-grid .grid-header {grid-column: 1;}
+.senses-grid {
+    grid-template-columns: repeat(4, max-content);
+    grid-template-rows: repeat(3, auto);
+}
+.senses-grid .grid-label {grid-row: 1;}
+#senses-magical-box-note {
+    grid-column: 1;
+    grid-row: 4;
+    margin-top: 0.25rem;
+}
+
+/*テーブル設定*/
+
+table {
+    table-layout: fixed;
+    text-align: left;
+    border-collapse: separate;
+    border-spacing: 10px;
+}
+
+thead {font-weight: bold;}
+th {text-align: left; vertical-align: middle;}
+td {text-align: center; vertical-align: top;}
+table.stat-form td {text-align: center;}
+
+canvas {max-width: 100%;}
+
+
+.booklist div {
+    margin-bottom: .5rem;
+}
+
+.tooltip {
+    position: relative;
+    display: inline-block;
+    color: black;
+    text-decoration: underline;
+    cursor: help;
+    opacity: 1;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 400px;
+    background-size: cover;
+    background-position: center;
+    color: #000000;
+    background-color: #74addf;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -200px;
+    border-style: solid;
+    border-radius: 5px;
+    text-align: center;
+}
+.tooltip:hover .tooltiptext {visibility: visible;}
+.buttoncontainer {text-align: center;}
+
+.collapsiblebutton {
+    cursor: pointer;
+    font-size: 15px;
+    color: darkred;
+
+    /* Make Unselectable */
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.expand-retract-text {
+    cursor: pointer;
+    font-family: Tahoma, Georgia, Arial, sans-serif;
+    font-size: 1.2rem;
+	font-weight: bold;
+    color: darkred;
+    display: inline;
+    margin-left: 3rem;
+
+    /* Make Unselectable */
+
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.expand-retract-h2 {
+	display: inline-block;
+	width: 10rem;
+}
+
+.centeredcontainer {
+    display: block;
+    text-align: center;
+}
+
+.footer {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.radio-row {
+    line-height: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.radio-row b {
+    line-height: 2rem;
+}
+
+.lock-button {
+    width: 2rem;
+    background: #888888;
+}
+
+.lock-button:hover {
+    background: #cccccc;
+}
+
+#imagecanvas {
+    border-color: white;
+    border-style: solid;
+}
+
+#character-columns ul {
+    padding-left: 5px;
+    margin-left: 5px;
+}
+
+#character-columns td {
+    padding: 0 5px;
+}
+
+#character-columns button {
+    margin-top: 2px;
+}

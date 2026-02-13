@@ -1,0 +1,265 @@
+/* データ・ブロック外観の設定 */
+
+.stat-block {
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 12px;
+    font-feature-settings: "kern" 0;
+    font-variant-ligatures: none;
+    font-variant-east-asian: normal;
+    text-align: left;
+    text-rendering: auto;
+    line-height: 1.3em; /*行間*/
+    letter-spacing: 0; /*文字間隔*/
+    display: inline-block;
+    vertical-align: top;
+    width: 400px;
+    background: #f6f3ee;
+    background-size: cover;
+	background-position: center; 
+    padding: 2px 10px 10px;
+    box-sizing: border-box;
+    /*font-feature-settings: "palt";*/ /*空白詰め*/
+    border: 1px double #000;
+    border-radius: 6px;
+    white-space: normal;
+    word-break: normal;
+}
+.punc-open { margin-right: -0.15em; }
+.punc-close { margin-left: -0.05em; }
+
+.stat-block.wide {
+    width: 800px;
+    /* text-align: center; */
+}
+
+.stat-block.wide .section-left,
+.stat-block.wide .section-right {
+    display: inline-block;
+    vertical-align: top;
+    width: 48%;
+    text-align: left;
+}
+
+.stat-block.wide .section-left {
+    margin-right: 1.5%;
+}
+
+.stat-block.wide .section-right {
+    margin-left: 1.5%;
+}
+
+.orange-border {
+    display: block;
+    background: #E69A28;
+    background-size: cover;
+	background-position: center;
+    /* background-image: url('../img/statblockbar.jpg'); */
+    background-image: url('https://tetra-cube.com/dnd/dndimages/statblockbar.jpg');
+    border: 0.5px solid #000;
+    height: 5px;
+    padding: 0 10px 0;
+    margin: -10px -10px 0;
+    box-sizing: initial;
+}
+
+.orange-border.bottom {
+    margin: 15px -10px -20px;
+}
+
+.tapered-rule {
+    display: block;
+    width: 100%;
+    height: 5px;
+    border: none;
+    color: #922610;
+    fill: #922610;
+}
+
+.creature-heading {
+    margin: 0 0 5px;
+}
+
+.section-top h1 { /* クリーチャー名 */
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    color: #bb0d0e;
+    font-size: 26px;
+    line-height: 1.2em;
+    margin: 10px 0 0;
+    letter-spacing: 1px;
+    font-variant: small-caps;
+    font-weight: bold;
+}
+
+hr.name {border-style: solid; border-color: #641a0a; margin: 4px 0 8px;}
+
+.creature-heading h2 { /* サイズ・種別、属性 */
+    font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", Meiryo, sans-serif;
+    font-weight: normal;
+    font-style: italic;
+    font-size: 12px;
+    line-height: 1.2em;
+    margin: 0 0 0;
+}
+
+/* ステータス見出し、本文 */
+.property-line h4, .property-line p {font-size: 12.5px; line-height: 1.2em; margin: 0; display: inline;}
+.property-line {text-indent: -1em; padding-left: 1.1em; line-height: 1.4em; margin-bottom: 5px;}
+.property-line.first {margin: 8px 10px 5px 0; display: inline-block;}
+.property-line.last {margin: 0 0 8px;}
+
+/* 能力値 */
+table.score {
+    border-spacing: 10px;
+    text-align: center;
+    margin: 0 5px 0 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    display: inline-block;
+}
+.score p {text-align: center; vertical-align: middle; display:inline;}
+.score thead {font-size: 9px;}
+th.sdc1, td.sdc1 {background-color: #ede6d9; text-align: center; vertical-align: middle; padding:5px;}
+th.sdc2, td.sdc2 {background-color: #ded4cd; text-align: center; vertical-align: middle; padding:5px;}
+th.iwc1, td.iwc1 {background-color: #d8dad2; text-align: center; vertical-align: middle; padding:5px;}
+th.iwc2, td.iwc2 {background-color: #d0caca; text-align: center; vertical-align: middle; padding:5px;}
+
+.scores {
+    text-align: center;
+    color: #922610;
+}
+
+.scores>div {
+    display: inline-block;
+    vertical-align: middle;
+    width: 15.5%;
+    min-width: 40px;
+    font-size: 12px;
+    line-height: 1em;
+}
+
+.scores h4 {
+    margin: 10px 0 2px;
+    font-size: 12px;
+    line-height: 1.2em;
+    /* text-transform: uppercase; */
+    color: #7A200D;
+}
+
+.scores p {
+    margin: 0 0 10px;
+    line-height: 1.2em;
+}
+
+.property-block h4,
+.property-block p {
+    font-size: 12.5px;
+    line-height: 1.2em;
+    letter-spacing: 0.03em; /*文字間隔*/
+    display: inline;
+    margin: 0;
+}
+
+/* アクション見出し */
+.property-block h4 {
+    font-style: italic;
+}
+
+/* 特徴、アクションの本文 */
+.property-block {
+    padding: 5px 1px 0;
+}
+
+.legendary {
+    padding-top: 5px;
+}
+
+.legendary h4 {
+    padding-left: 2px;
+    font-style: normal;
+}
+
+.legendary p {
+    font-style: normal;
+}
+
+#traits-list-right> :first-child.property-block.legendary {
+    /* for a rare edge case where a legendary action is the first item in the second column */
+    padding-top: 10px;
+}
+
+.lairregional {
+    padding-top: 0;
+}
+
+.lairregional h4 {
+    padding-left: 2px;
+    font-style: normal;
+}
+
+.lairregional p {
+    font-style: normal;
+}
+
+#traits-list-right> :first-child.property-block.lairregional {
+    /* for a rare edge case where a lair action is the first item in the second column */
+    padding-top: 10px;
+}
+
+/* アクションのカテゴリ見出し */
+.actions h3 {
+    border-bottom: 2px solid #7A200D;
+    color: #7A200D;
+    font-size: 18px;
+    font-variant: small-caps;
+    font-weight: normal;
+    /* letter-spacing: 1px; */
+    margin: 12px 0 0;
+    padding: 0 0 2px;
+    /* text-indent: 5px; */
+}
+
+.actions {
+    margin: 0 0 20px;
+}
+
+.actions:last-child {
+    margin: 0;
+}
+
+.indent {
+    text-indent: 1em;
+}
+
+.reverse-indent {
+    text-indent: -1em; /*１行目だけ1字上げる*/
+    padding-left: 1em; /*全部1字下げる*/
+}
+
+.top-stats {
+    /* Fix for a weird bug that I can't figure out the cause of */
+    margin: 0 0 10px;
+}
+
+#print-block h1,
+#print-block h3,
+#print-block h4,
+#print-block p {
+    color: black;
+}
+
+#print-block h3 {
+    border-bottom-color: black;
+}
+
+#print-block .tapered-rule {
+    color: black;
+    fill: black;
+}
+
+#print-block .stat-block {
+    background: none;
+}
+
+#print-block .orange-border {
+    display: none;
+}
